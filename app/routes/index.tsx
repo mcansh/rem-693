@@ -1,3 +1,9 @@
+import { ActionFunction, json } from "remix";
+
+export let action: ActionFunction = () => {
+  return json({});
+};
+
 export default function Index() {
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
