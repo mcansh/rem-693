@@ -30,13 +30,11 @@ export let meta: MetaFunction = () => {
 };
 
 export let unstable_shouldReload: ShouldReloadFunction = ({ submission }) => {
-  if (!submission) {
-    throw new Error("no submission!");
-  }
-
   console.log({
     ...submission,
-    parsed: Object.fromEntries(submission.formData.entries()),
+    parsed: submission
+      ? Object.fromEntries(submission.formData.entries())
+      : undefined,
   });
 
   return true;
