@@ -1,46 +1,48 @@
 import {
+  Link,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  ShouldReloadFunction,
-  useFetcher,
 } from "remix";
-import type { MetaFunction } from "remix";
+import type {
+  ActionFunction,
+  LinksFunction,
+  MetaFunction,
+  ShouldReloadFunction,
+} from "remix";
+
+import globalStyles from "./styles/global.css";
+import { Forms } from "./forms";
+
+export let links: LinksFunction = () => {
+  return [{ rel: "stylesheet", href: globalStyles }];
+};
+
+export let action: ActionFunction = () => {
+  return new Response("ROOT");
+};
 
 export let meta: MetaFunction = () => {
   return { title: "New Remix App" };
 };
 
-export let unstable_shouldReload: ShouldReloadFunction = ({
-  params,
-  prevUrl,
-  url,
-  submission,
-}) => {
+export let unstable_shouldReload: ShouldReloadFunction = ({ submission }) => {
   if (!submission) {
-    console.log({ params, prevUrl, url });
-    console.log("no submission");
-  } else {
-    console.log({
-      params,
-      prevUrl,
-      url,
-      submission: {
-        ...submission,
-        parsed: Object.fromEntries(submission.formData.entries()),
-      },
-    });
+    throw new Error("no submission!");
   }
 
-  return false;
+  console.log({
+    ...submission,
+    parsed: Object.fromEntries(submission.formData.entries()),
+  });
+
+  return true;
 };
 
 export default function App() {
-  let fetcher = useFetcher();
-
   return (
     <html lang="en">
       <head>
@@ -49,24 +51,27 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
-        <fetcher.Form method="get" action="?index">
-          <input type="hidden" name="hello" value="world" />
-          <button type="submit">get</button>
-        </fetcher.Form>
-        <fetcher.Form method="post" action="?index">
-          <input type="hidden" name="hello" value="world" />
-          <button type="submit">post</button>
-        </fetcher.Form>
-        <button
-          type="button"
-          onClick={() => {
-            let search = new URLSearchParams({ hello: "world" });
-            fetcher.submit(search, { action: "?index", method: "post" });
-          }}
-        >
-          fetcher.submit
-        </button>
+      <body style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
+        <div style={{ display: "flex", gap: 4 }}>
+          <Link to="/">Index</Link>
+          <Link to="/other">Other Page</Link>
+        </div>
+
+        <div>
+          <h1>In Root Route, hitting Root action</h1>
+          <Forms action="/" />
+        </div>
+
+        <div>
+          <h1>In Root Route, hitting Index action</h1>
+          <Forms action="/?index" />
+        </div>
+
+        <div>
+          <h1>In Root Route, hitting Other action</h1>
+          <Forms action="/other" />
+        </div>
+
         <Outlet />
         <ScrollRestoration />
         <Scripts />
